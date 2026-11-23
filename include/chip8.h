@@ -15,11 +15,10 @@ class Chip8 {
     uint8_t sp{};                       // stack pointer
     uint8_t d_timer{};                  // delay timer
     uint8_t s_timer{};                  // sound timer
-
     std::array<uint8_t, 64 * 32> gfx{}; // display
     std::array<bool, 16> keypad{};      // keypad
 
-    void executeOpcode(uint16_t opcode);
+    void execute_opcode(uint16_t opcode);
 
   public:
     Chip8();

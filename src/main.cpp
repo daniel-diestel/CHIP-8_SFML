@@ -1,3 +1,4 @@
+#include "chip8.h"
 #include <SFML/Graphics.hpp>
 
 int main() {
