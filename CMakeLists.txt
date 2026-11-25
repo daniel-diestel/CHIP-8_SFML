@@ -10,6 +10,7 @@ find_package(SFML 3 REQUIRED COMPONENTS Graphics Window System Audio)
 
 add_executable(chip-8_sfml 
     src/main.cpp
+    core/chip8.cpp
 )
 
 target_include_directories(chip-8_sfml PRIVATE
