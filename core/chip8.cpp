@@ -106,10 +106,64 @@ bool Chip8::load_rom(const std::string &filename) {
 void Chip8::cycle() {
     const uint16_t opcode = static_cast<uint16_t>((static_cast<uint16_t>(memory[pc]) << 8) |
                                                   static_cast<uint8_t>(memory[pc + 1]));
-
     pc += 2;
 
     execute_opcode(opcode);
 }
 
-void Chip8::execute_opcode(uint16_t opcode) {}
+void Chip8::execute_opcode(uint16_t opcode) {
+
+    switch (opcode & 0xF000) {
+    case 0x0000:
+        if (opcode == 0x00E0) {
+            gfx.fill(0);
+        }
+        break;
+    case 0x1000:
+        pc = (opcode & 0x0FFF);
+        break;
+    case 0x6000:
+        V[(opcode & 0x0F00) >> 8] = (opcode & 0x00FF);
+        break;
+    case 0x7000:
+        V[(opcode & 0x0F00) >> 8] += (opcode & 0x00FF);
+        break;
+    case 0xA000:
+        I = (opcode & 0x0FFF);
+        break;
+    case 0xD000: {
+        uint8_t x = (opcode & 0x0F00) >> 8;
+        uint8_t y = (opcode & 0x00F0) >> 4;
+        uint8_t height = opcode & 0x000F;
+
+        uint8_t start_x = V[x] % 64;
+        uint8_t start_y = V[y] % 32;
+        V[0xF] = 0;
+
+        for (uint8_t row = 0; row < height; ++row) {
+            if (start_y + row >= 32) {
+                break;
+            }
+
+            uint8_t sprite_byte = memory[I + row];
+
+            for (uint8_t col = 0; col < 8; ++col) {
+                if (start_x + col >= 64) {
+                    break;
+                }
+
+                if ((sprite_byte & (0x80 >> col)) != 0) {
+                    int idx = (start_y + row) * 64 + (start_x + col);
+
+                    if (gfx[idx] == 1) {
+                        V[0xF] = 1;
+                    }
+
+                    gfx[idx] ^= 1;
+                }
+            }
+        }
+        break;
+    }
+    }
+}
